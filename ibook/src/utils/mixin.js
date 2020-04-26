@@ -1,4 +1,7 @@
 import {mapGetters,mapActions} from 'vuex'
+import {themeList,addCss,removeAllCss} from "./book";
+import {saveLocation} from "./localStorage";
+
 export const ebookMixin = {
     computed:{
         ...mapGetters([
@@ -21,7 +24,10 @@ export const ebookMixin = {
             'pagelist',
             'offsetY',
             'isBookmark'
-        ])
+        ]),
+        themeList(){
+            return themeList(this)
+        }
     },
     methods:{
         ...mapActions([
@@ -45,5 +51,46 @@ export const ebookMixin = {
             'setOffsetY',
             'setIsBookmark'
         ]),
+        initGlobalStyle() {
+            removeAllCss()
+            switch (this.defaultTheme) {
+                case 'Default':
+                    addCss(`${process.env.VUE_APP_RES_URL}/theme/theme_default.css`);
+                    break;
+                case 'Eye':
+                    addCss(`${process.env.VUE_APP_RES_URL}/theme/theme_eye.css`);
+                    break;
+                case 'Gold':
+                    addCss(`${process.env.VUE_APP_RES_URL}/theme/theme_gold.css`);
+                    break;
+                case 'Night':
+                    addCss(`${process.env.VUE_APP_RES_URL}/theme/theme_night.css`);
+                    break;
+                default:
+                    addCss(`${process.env.VUE_APP_RES_URL}/theme/theme_default.css`);
+                    break;
+            }
+        },
+        refreshLocation(){
+            const currentLocation = this.currentBook.rendition.location;
+            const startCfi = currentLocation.start.cfi;
+            const progress = this.currentBook.locations.percentageFromCfi(currentLocation.start.cfi);
+            this.setProgress(Math.floor(progress * 100))
+            saveLocation(this.fileName,startCfi)
+        },
+        display(target,cb){
+            if(target){
+                this.rendition.display(target).then(() =>{
+                    this.refreshLocation()
+                    if(cb) cb()
+
+                })
+            }else{
+                this.rendition.display().then(() =>{
+                    this.refreshLocation()
+                })
+            }
+
+        },
     }
 };
