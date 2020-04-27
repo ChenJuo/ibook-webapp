@@ -14,7 +14,8 @@
         getFontSize,
         saveFontSize,
         getTheme,
-        saveTheme
+        saveTheme,
+        getLocation
     } from "../../utils/localStorage";
     import Epub from 'epubjs';
 
@@ -91,14 +92,12 @@
                     method: 'default',
                 });
                 const location = getLocation(this.fileName);
-                if(location){
-                    this.display(null,() =>{
+                    this.display(location,() =>{
                         this.initFontSize();
                         this.initFontFontFamily();
                         this.initTheme();
                         this.initGlobalStyle();
                     });
-                }
                 this.rendition.hooks.content.register(contents => {
                     Promise.all(
                         [
@@ -140,7 +139,8 @@
                         return this.book.locations.generate(750 * (window.innerWidth / 375) *(getFontSize(this.fileName) / 16))
                     }).then(locations =>{
                         //console.log(locations);
-                        this.setBookAvailable(true)
+                        this.setBookAvailable(true);
+                        this.refreshLocation();
                     })
                 }
             },

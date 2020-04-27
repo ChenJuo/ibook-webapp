@@ -52,7 +52,7 @@ export const ebookMixin = {
             'setIsBookmark'
         ]),
         initGlobalStyle() {
-            removeAllCss()
+            removeAllCss();
             switch (this.defaultTheme) {
                 case 'Default':
                     addCss(`${process.env.VUE_APP_RES_URL}/theme/theme_default.css`);
@@ -72,22 +72,24 @@ export const ebookMixin = {
             }
         },
         refreshLocation(){
-            const currentLocation = this.currentBook.rendition.location;
+            const currentLocation = this.currentBook.rendition.currentLocation();
             const startCfi = currentLocation.start.cfi;
             const progress = this.currentBook.locations.percentageFromCfi(currentLocation.start.cfi);
-            this.setProgress(Math.floor(progress * 100))
+            this.setProgress(Math.floor(progress * 100));
+            this.setSection(currentLocation.start.index);
             saveLocation(this.fileName,startCfi)
         },
         display(target,cb){
             if(target){
-                this.rendition.display(target).then(() =>{
+                this.currentBook.rendition.display(target).then(() =>{
                     this.refreshLocation()
                     if(cb) cb()
 
                 })
             }else{
-                this.rendition.display().then(() =>{
+                this.currentBook.rendition.display().then(() =>{
                     this.refreshLocation()
+                    if(cb) cb()
                 })
             }
 
