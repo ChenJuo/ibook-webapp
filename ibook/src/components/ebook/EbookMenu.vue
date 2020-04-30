@@ -20,6 +20,7 @@
         <ebook-setting-font-popup></ebook-setting-font-popup>
         <ebook-setting-theme></ebook-setting-theme>
         <ebook-setting-progess></ebook-setting-progess>
+        <ebook-slide></ebook-slide>
     </div>
 </template>
 
@@ -27,7 +28,8 @@
     import EbookSettingFont from './EbookSettingFont';
     import EbookSettingFontPopup from './EbookSettingFontPopup';
     import EbookSettingTheme from './EbookSettingTheme';
-    import EbookSettingProgess from './EbookSettingProgress'
+    import EbookSettingProgess from './EbookSettingProgress';
+    import EbookSlide from './EbookSlide';
     import {ebookMixin} from "../../utils/mixin";
     export default {
         name: "EbookMenu",
@@ -41,7 +43,8 @@
           EbookSettingFont,
           EbookSettingFontPopup,
           EbookSettingTheme,
-          EbookSettingProgess
+          EbookSettingProgess,
+          EbookSlide
         },
         mixins:[ebookMixin],
         methods:{
