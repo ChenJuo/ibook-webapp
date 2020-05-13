@@ -16,6 +16,7 @@
     import Bookmark from '../common/Bookmark'
     import {realPx} from "../../utils/utils";
     import {ebookMixin} from "../../utils/mixin";
+    import {getBookmark,saveBookmark} from "../../utils/localStorage";
 
     const BLUE = '#346CBC';
     const WHITE = '#fff';
@@ -40,20 +41,29 @@
               }
           }
         },
-        watch:{
-            offsetY(v){
-                if(!this.bookAvailable || this.menuVisible || this.settingVisible >= 0){
+        watch: {
+            offsetY(v) {
+                if (!this.bookAvailable || this.menuVisible || this.settingVisible >= 0) {
                     return
                 }
-                if(v >= this.height && v < this.threshold){
+                if (v >= this.height && v < this.threshold) {
                     this.beforeThreshold(v)
-                }else if(v >= this.threshold){
+                } else if (v >= this.threshold) {
                     this.afterThreshold(v)
-                }else if(v > 0 && v < this.height){
+                } else if (v > 0 && v < this.height) {
                     // 状态1
                     this.beforeHeight(v)
-                }else if(v === 0){
+                } else if (v === 0) {
                     this.restore()
+                }
+            },
+            isBookmark(isBookmark) {
+                this.isFixed = isBookmark
+                if (isBookmark) {
+                    this.color = BLUE;
+                } else {
+                    this.color = WHITE;
+
                 }
             }
         },
@@ -67,11 +77,33 @@
         methods:{
             //添加书签
             addBookmark(){
-
+                this.bookmark = getBookmark(this.fileName);
+                if(!this.bookmark){
+                    this.bookmark = []
+                }
+                const currentLocation = this.currentBook.rendition.currentLocation();
+                const cfibase = currentLocation.start.cfi.replace(/!.*/,'');
+                const cfistart = currentLocation.start.cfi.replace(/.*!/,'').replace(/\)$/,'');
+                const cfiend = currentLocation.end.cfi.replace(/.*!/,'').replace(/\)$/,'');
+                const cfirange = `${cfibase}!,${cfistart},${cfiend}`;
+                this.currentBook.getRange(cfirange).then(range =>{
+                   const text = range.toString().replace(/\s\s/g,'')
+                   this.bookmark.push({
+                       cfi:currentLocation.start.cfi,
+                       text:text
+                   })
+                   saveBookmark(this.fileName,this.bookmark)
+                })
             },
             //删除书签
             removeBookmark(){
-
+                const currentLocation = this.currentBook.rendition.currentLocation();
+                const cfi = currentLocation.start.cfi;
+                this.bookmark = getBookmark(this.fileName);
+                if(this.bookmark){
+                    this.bookmark = saveBookmark(this.fileName,this.bookmark.filter(item => item.cfi !== cfi))
+                    this.setIsBookmark(false)
+                }
             },
             restore(){
                 //状态4：归位
